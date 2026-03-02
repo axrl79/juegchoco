@@ -11,9 +11,9 @@ export function MarioCube({ onHit, isShaking }: MarioCubeProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="absolute z-40" style={{ bottom: '120px', left: '50%', transform: 'translateX(-50%)' }}>
+    <div className="absolute z-40" style={{ bottom: '155px', left: '50%', transform: 'translateX(-50%)' }}>
       <div
-        className={`relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 cursor-pointer transition-all active:scale-95 group duration-200 ${
+        className={`relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 cursor-pointer transition-all active:scale-95 group duration-200 ${
           isShaking ? 'animate-impact-shake' : 'animate-document-float'
         }`}
         onClick={onHit}
@@ -41,18 +41,18 @@ export function MarioCube({ onHit, isShaking }: MarioCubeProps) {
           }}></div>
 
           {/* Centro: Icono flotante */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <div className="text-6xl sm:text-8xl md:text-9xl font-black text-white drop-shadow-2xl filter brightness-125 animate-document-float">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+            <div className="text-4xl sm:text-5xl md:text-6xl font-black text-white drop-shadow-2xl filter brightness-125 animate-document-float">
               📋
             </div>
             
-            <div className="text-xs sm:text-sm md:text-base font-black text-white/90 uppercase tracking-wider drop-shadow-lg opacity-80 animate-pulse">
+            <div className="text-xs sm:text-xs md:text-sm font-black text-white/90 uppercase tracking-wider drop-shadow-lg opacity-80 animate-pulse hidden sm:block">
               Propuestas
             </div>
           </div>
 
           {/* Indicador de interactividad */}
-          <div className="absolute -top-10 right-6 text-5xl sm:text-6xl md:text-7xl font-black text-cyan-300 drop-shadow-lg filter brightness-125 animate-interaction-hint">
+          <div className="absolute -top-8 right-4 text-4xl sm:text-5xl md:text-6xl font-black text-cyan-300 drop-shadow-lg filter brightness-125 animate-interaction-hint">
             ✨
           </div>
         </div>

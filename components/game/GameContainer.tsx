@@ -24,8 +24,8 @@ const PROPOSALS = [
 
 const GAME_CONFIG = {
   GROUND_Y: 80,
-  CUBE_TOP: 120,
-  CUBE_BOTTOM: 200,
+  CUBE_TOP: 100,
+  CUBE_BOTTOM: 155,
   CUBE_CENTER_X: 50, // %
   PLAYER_WIDTH: 60, // px aproximado
   GRAVITY: 0.6,
@@ -156,6 +156,21 @@ export function GameContainer() {
     performHit();
   };
 
+  // Manejo de toques en la pantalla (salto)
+  const handleScreenTap = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!gameActive || showStartScreen) return;
+    
+    // Evitar conflicto si es click en botones o elementos interactivos
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="button"]')) {
+      return;
+    }
+
+    // Hacer saltar al personaje
+    velocityRef.current = GAME_CONFIG.JUMP_POWER;
+    isJumpingRef.current = true;
+  };
+
   // Reiniciar juego
   const handleRestart = () => {
     setPlayerY(GAME_CONFIG.GROUND_Y);
@@ -172,7 +187,11 @@ export function GameContainer() {
   };
 
   return (
-    <div className="w-full h-screen bg-background overflow-hidden relative flex flex-col">
+    <div 
+      className="w-full h-screen bg-background overflow-hidden relative flex flex-col"
+      onClick={handleScreenTap}
+      onTouchStart={handleScreenTap}
+    >
       {/* Background */}
       <GameBackground />
 
@@ -228,7 +247,7 @@ export function GameContainer() {
 
       {/* Start Screen - Overlay */}
       {showStartScreen && gameActive && (
-        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center pointer-events-none bg-black/30">
           <div className="text-center space-y-8 animate-fade-in-down">
             <h1 className="text-6xl sm:text-8xl font-black bg-linear-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-xl">
               PROPUESTAS POLÍTICAS
@@ -245,13 +264,13 @@ export function GameContainer() {
 
           <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 pointer-events-auto">
             <button
-              onClick={handleCubeClick}
+              onClick={() => setShowStartScreen(false)}
               className="px-10 py-5 sm:px-16 sm:py-6 bg-linear-to-r from-cyan-500 to-blue-600 text-white font-black text-2xl sm:text-3xl rounded-2xl hover:shadow-2xl hover:shadow-cyan-500/50 active:scale-95 transition-all transform hover:scale-110 uppercase tracking-wider border-2 border-cyan-300/50 shadow-xl"
             >
               COMENZAR JUEGO
             </button>
             <p className="text-center text-white/70 mt-6 text-lg font-semibold animate-pulse">
-              El Choco saltará automáticamente...
+              Toca la pantalla para que el Choco salte ✨
             </p>
           </div>
         </div>
