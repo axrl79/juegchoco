@@ -22,160 +22,172 @@ const PROPOSALS = [
   'Inversión en energías renovables limpias para desarrollo sostenible',
 ];
 
+const GAME_CONFIG = {
+  GROUND_Y: 80,
+  CUBE_TOP: 120,
+  CUBE_BOTTOM: 200,
+  CUBE_CENTER_X: 50, // %
+  PLAYER_WIDTH: 60, // px aproximado
+  GRAVITY: 0.6,
+  JUMP_POWER: 20,
+  JUMP_INTERVAL: 1000,
+};
+
 export function GameContainer() {
-  const [playerY, setPlayerY] = useState(50);
-  const [playerRotation, setPlayerRotation] = useState(0);
-  const [isJumping, setIsJumping] = useState(false);
+  // Estado del juego
+  const [playerY, setPlayerY] = useState(GAME_CONFIG.GROUND_Y);
   const [gameActive, setGameActive] = useState(true);
   const [score, setScore] = useState(0);
   const [currentProposal, setCurrentProposal] = useState<string | null>(null);
   const [revealedProposals, setRevealedProposals] = useState<string[]>([]);
   const [isCubeShaking, setIsCubeShaking] = useState(false);
   const [impactEffect, setImpactEffect] = useState(false);
+  const [showStartScreen, setShowStartScreen] = useState(true);
+  
+  // Referencias
   const velocityRef = useRef(0);
-  const jumpingRef = useRef(false);
+  const isJumpingRef = useRef(false);
   const usedProposalsRef = useRef(new Set<number>());
-  const lastHitRef = useRef(false);
+  const canHitRef = useRef(true);
 
-  // Simulación de física de salto mejorada
+  // Sistema de física de salto
   useEffect(() => {
     if (!gameActive) return;
 
-    let frameId: number;
+    let animationFrameId: number;
     const gameLoop = () => {
       setPlayerY((prevY) => {
-        // Física más realista con easing suave
-        const GRAVITY = 0.55;
-        const JUMP_POWER = 18;
-        const GROUND_Y = 50;
-        const MAX_Y = 250;
-
-        if (!jumpingRef.current) {
-          // Iniciar salto automático cada 900ms
-          jumpingRef.current = true;
-          velocityRef.current = JUMP_POWER;
-          setIsJumping(true);
-        }
-
-        velocityRef.current -= GRAVITY;
+        // Aplicar gravedad
+        velocityRef.current -= GAME_CONFIG.GRAVITY;
         let newY = prevY - velocityRef.current;
 
-        // Límite superior
+        // Limitar altura mínima
         if (newY < 0) {
           newY = 0;
           velocityRef.current = 0;
         }
 
-        if (newY >= GROUND_Y) {
-          newY = GROUND_Y;
+        // Suelo
+        if (newY >= GAME_CONFIG.GROUND_Y) {
+          newY = GAME_CONFIG.GROUND_Y;
           velocityRef.current = 0;
-          jumpingRef.current = false;
-          setIsJumping(false);
+          isJumpingRef.current = false;
         }
 
-        // Detección de colisión mejorada con el cubo
-        // El cubo está entre 100-180px de altura
-        const playerSize = 35; // Altura aproximada del jugador
-        if (newY + playerSize > 100 && newY < 180 && !lastHitRef.current) {
-          if (prevY >= GROUND_Y || velocityRef.current < -3) {
-            // Colisión descendente o en fase de caída
-            handleCubeHit();
-            lastHitRef.current = true;
-          }
-        } else if (newY >= GROUND_Y) {
-          lastHitRef.current = false;
+        // Detección de colisión mejorada
+        if (
+          canHitRef.current &&
+          newY < GAME_CONFIG.CUBE_BOTTOM &&
+          newY + GAME_CONFIG.PLAYER_WIDTH > GAME_CONFIG.CUBE_TOP &&
+          velocityRef.current < 0 // Descendiendo
+        ) {
+          performHit();
+          canHitRef.current = false;
+          setTimeout(() => {
+            canHitRef.current = true;
+          }, 500);
         }
-
-        // Rotación del personaje según velocidad
-        setPlayerRotation(Math.min(Math.abs(velocityRef.current) * 5, 30));
 
         return newY;
       });
 
-      frameId = requestAnimationFrame(gameLoop);
+      animationFrameId = requestAnimationFrame(gameLoop);
     };
 
-    frameId = requestAnimationFrame(gameLoop);
-
-    return () => cancelAnimationFrame(frameId);
+    animationFrameId = requestAnimationFrame(gameLoop);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [gameActive]);
 
-  // Auto-salto continuo mejorado
+  // Auto-jump del personaje
   useEffect(() => {
-    if (!gameActive) return;
+    if (!gameActive || showStartScreen) return;
 
-    const jumpTimer = setInterval(() => {
-      velocityRef.current = 18;
-      jumpingRef.current = true;
-    }, 900);
+    const jumpInterval = setInterval(() => {
+      velocityRef.current = GAME_CONFIG.JUMP_POWER;
+      isJumpingRef.current = true;
+    }, GAME_CONFIG.JUMP_INTERVAL);
 
-    return () => clearInterval(jumpTimer);
-  }, [gameActive]);
+    return () => clearInterval(jumpInterval);
+  }, [gameActive, showStartScreen]);
 
-  const handleCubeHit = () => {
-    if (score >= PROPOSALS.length) return;
+  // Función de hit mejorada
+  const performHit = () => {
+    if (score >= PROPOSALS.length || !gameActive) return;
 
     let randomIdx: number;
     do {
       randomIdx = Math.floor(Math.random() * PROPOSALS.length);
-    } while (usedProposalsRef.current.has(randomIdx) && usedProposalsRef.current.size < PROPOSALS.length);
+    } while (
+      usedProposalsRef.current.has(randomIdx) &&
+      usedProposalsRef.current.size < PROPOSALS.length
+    );
 
     usedProposalsRef.current.add(randomIdx);
-
     const newProposal = PROPOSALS[randomIdx];
     const newScore = score + 1;
 
+    // Actualizar estado
     setCurrentProposal(newProposal);
     setScore(newScore);
     setRevealedProposals([...revealedProposals, newProposal]);
 
-    // Efectos visuales mejorados
+    // Efectos visuales
     setIsCubeShaking(true);
     setImpactEffect(true);
-    
+
     setTimeout(() => setIsCubeShaking(false), 300);
-    setTimeout(() => setImpactEffect(false), 400);
+    setTimeout(() => setImpactEffect(false), 500);
 
     // Fin del juego
     if (newScore >= PROPOSALS.length) {
-      setTimeout(() => {
-        setGameActive(false);
-      }, 800);
+      setTimeout(() => setGameActive(false), 1000);
     }
   };
 
+  // Manejo de clicks/toques en el cubo
+  const handleCubeClick = () => {
+    if (!gameActive) return;
+
+    if (showStartScreen) {
+      setShowStartScreen(false);
+      return;
+    }
+
+    performHit();
+  };
+
+  // Reiniciar juego
   const handleRestart = () => {
-    setPlayerY(50);
+    setPlayerY(GAME_CONFIG.GROUND_Y);
     setScore(0);
     setRevealedProposals([]);
     setCurrentProposal(null);
     setGameActive(true);
+    setShowStartScreen(true);
     setImpactEffect(false);
-    setPlayerRotation(0);
     velocityRef.current = 0;
-    jumpingRef.current = false;
+    isJumpingRef.current = false;
     usedProposalsRef.current.clear();
-    lastHitRef.current = false;
+    canHitRef.current = true;
   };
 
   return (
-    <div className="w-full h-screen bg-background overflow-hidden relative">
+    <div className="w-full h-screen bg-background overflow-hidden relative flex flex-col">
       {/* Background */}
       <GameBackground />
 
       {/* Score Display */}
       <ScoreDisplay score={score} total={PROPOSALS.length} />
 
-      {/* Game Area */}
-      <div className="relative w-full h-full">
-        {/* Impact Effect - Gran explosión de energía */}
+      {/* Game Area - Centro */}
+      <div className="flex-1 relative w-full flex items-end justify-center">
+        {/* Impact Effect */}
         {impactEffect && (
-          <div className="fixed inset-0 z-45 pointer-events-none">
-            <div className="absolute left-1/2 bottom-32 transform -translate-x-1/2">
-              <div className="w-32 h-32 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-full blur-3xl opacity-70 animate-impact-burst"></div>
+          <div className="absolute inset-0 z-45 pointer-events-none">
+            <div className="absolute left-1/2 bottom-1/3 transform -translate-x-1/2">
+              <div className="w-32 h-32 bg-linear-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-full blur-3xl opacity-70 animate-impact-burst"></div>
             </div>
-            {/* Ondas de energía */}
-            <div className="absolute left-1/2 bottom-32 transform -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute left-1/2 bottom-1/3 transform -translate-x-1/2 -translate-y-1/2">
               <div className="w-24 h-24 rounded-full border-4 border-cyan-400/80 animate-energy-pulse"></div>
               <div className="absolute w-32 h-32 rounded-full border-2 border-blue-500/50 animate-energy-pulse" style={{ animationDelay: '0.1s' }}></div>
               <div className="absolute w-40 h-40 rounded-full border-2 border-purple-500/30 animate-energy-pulse" style={{ animationDelay: '0.2s' }}></div>
@@ -184,51 +196,62 @@ export function GameContainer() {
         )}
 
         {/* Player */}
-        <Player y={playerY} />
+        {!gameActive ? null : <Player y={playerY} />}
 
-        {/* Mario Cube */}
-        {gameActive && <MarioCube onHit={handleCubeHit} isShaking={isCubeShaking} />}
+        {/* Cube */}
+        {gameActive && (
+          <MarioCube 
+            onHit={handleCubeClick} 
+            isShaking={isCubeShaking} 
+          />
+        )}
 
         {/* Side Animals */}
         <SideAnimals />
-
-        {/* Current Proposal */}
-        {currentProposal && <ProposalCard proposal={currentProposal} onAnimationEnd={() => setCurrentProposal(null)} />}
-
-        {/* Game Over */}
-        {!gameActive && <GameOver onRestart={handleRestart} proposals={revealedProposals} />}
       </div>
 
-      {/* Instrucciones iniciales mejoradas */}
-      {gameActive && score === 0 && (
-        <div className="fixed inset-0 z-30 flex flex-col items-center justify-center pointer-events-none">
-          {/* Instrucción superior */}
-          <div className="absolute top-20 animate-fade-in-down">
-            <div className="text-center space-y-4">
-              <h1 className="text-5xl sm:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
-                PROPUESTAS POLÍTICAS
-              </h1>
-              <p className="text-lg sm:text-2xl font-bold text-white/80 tracking-wider">
-                Salta y descubre las propuestas de gobierno
-              </p>
-              <div className="flex justify-center gap-4 text-4xl">
-                <span className="animate-bounce">📋</span>
-                <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>⚡</span>
-                <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🎯</span>
-              </div>
+      {/* Proposal Modal */}
+      {currentProposal && (
+        <ProposalCard 
+          proposal={currentProposal} 
+          onAnimationEnd={() => setCurrentProposal(null)} 
+        />
+      )}
+
+      {/* Game Over Screen */}
+      {!gameActive && (
+        <GameOver 
+          onRestart={handleRestart} 
+          proposals={revealedProposals} 
+        />
+      )}
+
+      {/* Start Screen - Overlay */}
+      {showStartScreen && gameActive && (
+        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center pointer-events-none">
+          <div className="text-center space-y-8 animate-fade-in-down">
+            <h1 className="text-6xl sm:text-8xl font-black bg-linear-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-xl">
+              PROPUESTAS POLÍTICAS
+            </h1>
+            <p className="text-xl sm:text-3xl font-bold text-white/90 tracking-wider">
+              Salta y descubre el programa de gobierno
+            </p>
+            <div className="flex justify-center gap-6 text-6xl animate-bounce">
+              <span>📋</span>
+              <span style={{ animationDelay: '0.1s' }}>⚡</span>
+              <span style={{ animationDelay: '0.2s' }}>🎯</span>
             </div>
           </div>
 
-          {/* Instrucción inferior */}
-          <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2 pointer-events-auto">
+          <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 pointer-events-auto">
             <button
-              onClick={handleCubeHit}
-              className="px-8 py-4 sm:px-12 sm:py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xl sm:text-2xl rounded-xl hover:shadow-2xl hover:shadow-cyan-500/50 active:scale-95 transition-all transform hover:scale-110 uppercase tracking-wider border-2 border-cyan-300/50"
+              onClick={handleCubeClick}
+              className="px-10 py-5 sm:px-16 sm:py-6 bg-linear-to-r from-cyan-500 to-blue-600 text-white font-black text-2xl sm:text-3xl rounded-2xl hover:shadow-2xl hover:shadow-cyan-500/50 active:scale-95 transition-all transform hover:scale-110 uppercase tracking-wider border-2 border-cyan-300/50 shadow-xl"
             >
-              Golpea el Cubo ↓
+              COMENZAR JUEGO
             </button>
-            <p className="text-center text-white/60 mt-4 text-sm animate-pulse">
-              El personaje saltará automáticamente
+            <p className="text-center text-white/70 mt-6 text-lg font-semibold animate-pulse">
+              El Choco saltará automáticamente...
             </p>
           </div>
         </div>

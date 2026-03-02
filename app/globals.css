@@ -395,7 +395,7 @@
     transform: translateY(0) rotateZ(0deg);
   }
   50% {
-    transform: translateY(-10px) rotateZ(2deg);
+    transform: translateY(-8px) rotateZ(1deg);
   }
 }
 

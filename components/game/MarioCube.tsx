@@ -11,10 +11,10 @@ export function MarioCube({ onHit, isShaking }: MarioCubeProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="absolute bottom-48 left-1/2 transform -translate-x-1/2 z-40">
+    <div className="absolute z-40" style={{ bottom: '120px', left: '50%', transform: 'translateX(-50%)' }}>
       <div
-        className={`relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 cursor-pointer transition-all active:scale-95 group duration-200 ${
-          isShaking ? 'animate-impact-shake' : ''
+        className={`relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 cursor-pointer transition-all active:scale-95 group duration-200 ${
+          isShaking ? 'animate-impact-shake' : 'animate-document-float'
         }`}
         onClick={onHit}
         onMouseEnter={() => setIsHovered(true)}
@@ -22,69 +22,59 @@ export function MarioCube({ onHit, isShaking }: MarioCubeProps) {
         onTouchStart={() => setIsHovered(true)}
         onTouchEnd={() => setIsHovered(false)}
       >
-        {/* Aura brillante exterior - Efecto energía cibernética */}
-        <div className="absolute -inset-8 bg-gradient-to-br from-cyan-300 via-blue-400 to-purple-500 rounded-2xl blur-3xl opacity-75 group-hover:opacity-100 transition-opacity animate-cyber-pulse"></div>
+        {/* Aura brillante exterior - Efecto flotante */}
+        <div className="absolute -inset-10 bg-linear-to-br from-cyan-300/50 via-blue-400/30 to-purple-500/20 rounded-3xl blur-3xl opacity-75 group-hover:opacity-100 transition-opacity animate-cyber-pulse"></div>
 
-        {/* Aura secundaria más cercana */}
-        <div className="absolute -inset-4 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl blur-2xl opacity-60 group-hover:opacity-80 animate-color-shift"></div>
+        {/* Aura secundaria */}
+        <div className="absolute -inset-6 bg-linear-to-br from-cyan-400/40 to-blue-500/30 rounded-3xl blur-2xl opacity-60 group-hover:opacity-80 animate-color-shift"></div>
 
-        {/* Cubo principal sofisticado - Estilo moderno */}
-        <div className="w-full h-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-2xl relative shadow-2xl border-2 border-cyan-300/60 hover:shadow-cyan-400/80 transition-all group-hover:scale-110 overflow-hidden">
+        {/* Cubo principal - Limpio y flotante */}
+        <div className="w-full h-full bg-linear-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-3xl relative shadow-2xl border-2 border-cyan-300/60 hover:shadow-cyan-400/80 transition-all group-hover:scale-110 overflow-hidden backdrop-blur-sm">
           
-          {/* Efecto de cristal/vidrio */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/15 to-white/30 rounded-2xl"></div>
+          {/* Efecto de cristal sutil */}
+          <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/15 to-white/25 rounded-3xl"></div>
           
-          {/* Grid de líneas cibernéticas */}
-          <div className="absolute inset-0 opacity-30 rounded-2xl" style={{
-            backgroundImage: 'linear-gradient(90deg, rgba(34,211,238,0.1) 1px, transparent 1px), linear-gradient(0deg, rgba(34,211,238,0.1) 1px, transparent 1px)',
-            backgroundSize: '20px 20px'
+          {/* Grid cibernético muy sutil */}
+          <div className="absolute inset-0 opacity-10 rounded-3xl" style={{
+            backgroundImage: 'linear-gradient(90deg, rgba(34,211,238,0.05) 1px, transparent 1px), linear-gradient(0deg, rgba(34,211,238,0.05) 1px, transparent 1px)',
+            backgroundSize: '30px 30px'
           }}></div>
 
-          {/* Triángulo superior izquierdo - Decorativo */}
-          <div className="absolute top-2 left-2 w-3 h-3 bg-cyan-200/80 rounded-full animate-pulse shadow-lg"></div>
-
-          {/* Centro: Símbolo de propuestas - Documento/Propuesta */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-            {/* Icono de documento mejorado */}
-            <div className="text-5xl sm:text-7xl md:text-8xl font-black text-white drop-shadow-2xl filter brightness-125 animate-document-float">
+          {/* Centro: Icono flotante */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <div className="text-6xl sm:text-8xl md:text-9xl font-black text-white drop-shadow-2xl filter brightness-125 animate-document-float">
               📋
             </div>
             
-            {/* Texto "PROPUESTAS" animado */}
-            <div className="text-xs sm:text-sm md:text-base font-black text-white uppercase tracking-wider drop-shadow-lg opacity-90 animate-pulse">
-              PROPUESTAS
+            <div className="text-xs sm:text-sm md:text-base font-black text-white/90 uppercase tracking-wider drop-shadow-lg opacity-80 animate-pulse">
+              Propuestas
             </div>
           </div>
 
-          {/* Brillo superior derecha */}
-          <div className="absolute top-1 right-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-gradient-to-br from-white/60 to-cyan-200/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-xl"></div>
-
-          {/* Signo pulsante - Interactividad */}
-          <div className="absolute -top-8 right-4 text-5xl sm:text-6xl md:text-7xl font-black text-cyan-300 drop-shadow-lg filter brightness-125 animate-interaction-hint">
-            ⚡
+          {/* Indicador de interactividad */}
+          <div className="absolute -top-10 right-6 text-5xl sm:text-6xl md:text-7xl font-black text-cyan-300 drop-shadow-lg filter brightness-125 animate-interaction-hint">
+            ✨
           </div>
         </div>
 
-        {/* Sombra dinámica mejorada - Profundidad */}
-        <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-32 sm:w-40 md:w-48 h-4 sm:h-5 bg-black/35 rounded-full blur-xl group-hover:shadow-2xl transition-shadow"></div>
+        {/* Sombra dinámica mejorada */}
+        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 w-40 sm:w-48 md:w-56 h-5 sm:h-6 bg-black/30 rounded-full blur-xl group-hover:shadow-2xl transition-shadow"></div>
 
-        {/* Partículas de energía al interactuar */}
+        {/* Partículas flotantes de energía */}
         {isHovered && (
           <>
-            {/* Partículas superiores */}
-            <div className="absolute -top-6 right-1/4 w-3 h-3 bg-cyan-300 rounded-full animate-float-up"></div>
-            <div className="absolute -top-8 left-1/4 w-2.5 h-2.5 bg-blue-300 rounded-full animate-float-up" style={{ animationDelay: '0.1s' }}></div>
-            <div className="absolute -top-4 right-1/3 w-2 h-2 bg-purple-300 rounded-full animate-float-up" style={{ animationDelay: '0.2s' }}></div>
+            <div className="absolute -top-8 right-1/4 w-3 h-3 bg-cyan-300 rounded-full animate-float-up"></div>
+            <div className="absolute -top-10 left-1/4 w-2.5 h-2.5 bg-blue-300 rounded-full animate-float-up" style={{ animationDelay: '0.1s' }}></div>
+            <div className="absolute -top-6 right-1/3 w-2 h-2 bg-purple-300 rounded-full animate-float-up" style={{ animationDelay: '0.2s' }}></div>
             
-            {/* Partículas laterales */}
-            <div className="absolute top-1/2 -right-4 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-float-right"></div>
-            <div className="absolute top-1/3 -left-5 w-2 h-2 bg-blue-400 rounded-full animate-float-left"></div>
+            <div className="absolute top-1/2 -right-6 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-float-right"></div>
+            <div className="absolute top-1/3 -left-6 w-2 h-2 bg-blue-400 rounded-full animate-float-left"></div>
           </>
         )}
 
         {/* Anillo de interactividad */}
         {isHovered && (
-          <div className="absolute inset-0 rounded-2xl border-2 border-cyan-300/50 animate-ping-slow"></div>
+          <div className="absolute inset-0 rounded-3xl border-2 border-cyan-300/50 animate-ping-slow"></div>
         )}
       </div>
     </div>
