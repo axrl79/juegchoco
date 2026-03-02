@@ -14,7 +14,7 @@ export function ProposalCard({ proposal, onAnimationEnd }: ProposalCardProps) {
     const timer = setTimeout(() => {
       setShow(false);
       setTimeout(onAnimationEnd, 500);
-    }, 2500);
+    }, 3500);
 
     return () => clearTimeout(timer);
   }, [onAnimationEnd]);
@@ -26,74 +26,87 @@ export function ProposalCard({ proposal, onAnimationEnd }: ProposalCardProps) {
       }`}
       onClick={() => setShow(false)}
     >
-      {/* Fondo oscuro con efecto más dramático */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-md"></div>
+      {/* Fondo oscuro dramático con efecto cinematic */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-lg"></div>
 
-      {/* Destellos de luz */}
+      {/* Destellos de energía cibernética */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl animate-glow-pulse"></div>
-        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl animate-glow-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-glow-pulse"></div>
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-glow-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
-      {/* Tarjeta principal */}
-      <div className="relative z-50 max-w-xl mx-4 animate-proposal-pop pointer-events-auto">
-        {/* Aura brillante detrás */}
-        <div className="absolute -inset-6 bg-gradient-to-br from-violet-500 via-purple-500 to-orange-500 rounded-2xl blur-2xl opacity-30 animate-glow-pulse"></div>
+      {/* Tarjeta principal sofisticada */}
+      <div className="relative z-50 max-w-2xl mx-4 animate-proposal-pop pointer-events-auto">
+        {/* Aura brillante de energía detrás */}
+        <div className="absolute -inset-8 bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-600 rounded-3xl blur-3xl opacity-40 animate-glow-pulse"></div>
 
-        {/* Tarjeta */}
-        <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-purple-700 rounded-2xl p-8 sm:p-10 shadow-2xl border-4 border-violet-400/50 overflow-hidden">
-          {/* Efecto de brillo interno */}
-          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/10 to-white/20 pointer-events-none rounded-2xl"></div>
+        {/* Tarjeta principal */}
+        <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 rounded-3xl p-10 sm:p-12 md:p-16 shadow-2xl border-2 border-cyan-400/40 overflow-hidden">
+          
+          {/* Efecto de brillo cristalino superior */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/5 to-transparent pointer-events-none rounded-3xl"></div>
 
-          {/* Decoración superior - Triángulo brillante */}
-          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 flex gap-2">
-            <div className="text-4xl sm:text-5xl animate-bounce drop-shadow-lg">⭐</div>
-            <div className="text-3xl sm:text-4xl animate-rotate-360">✨</div>
-            <div className="text-4xl sm:text-5xl animate-bounce" style={{ animationDelay: '0.2s' }}>⭐</div>
-          </div>
+          {/* Líneas decorativas cibernéticas */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50"></div>
 
           {/* Contenido */}
-          <div className="text-center pt-6 space-y-5 relative z-10">
-            {/* Número de propuesta */}
-            <div className="flex items-center justify-center gap-2">
-              <div className="h-1 w-8 bg-gradient-to-r from-orange-300 to-transparent rounded-full"></div>
-              <h2 className="text-lg sm:text-xl font-black text-white text-balance tracking-wider">
-                NUEVA PROPUESTA
+          <div className="text-center space-y-6 relative z-10">
+            
+            {/* Encabezado mejorado */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <div className="h-0.5 w-12 bg-gradient-to-r from-cyan-400 to-transparent rounded-full"></div>
+                <p className="text-sm sm:text-base font-black text-cyan-400 uppercase tracking-widest drop-shadow-lg">
+                  Propuesta Electoral
+                </p>
+                <div className="h-0.5 w-12 bg-gradient-to-l from-cyan-400 to-transparent rounded-full"></div>
+              </div>
+              
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 drop-shadow-lg">
+                PROPUESTA REVELADA
               </h2>
-              <div className="h-1 w-8 bg-gradient-to-l from-orange-300 to-transparent rounded-full"></div>
             </div>
 
-            {/* Caja de propuesta - mejorada */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 sm:p-6 border-2 border-white/30 min-h-24 flex items-center justify-center group hover:bg-white/15 transition-all">
-              <p className="text-base sm:text-lg font-bold text-white text-balance leading-relaxed drop-shadow-md">
-                {proposal}
-              </p>
+            {/* Caja de contenido de propuesta - Diseño sofisticado */}
+            <div className="relative group">
+              {/* Fondo de resplandor */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <div className="relative bg-black/30 backdrop-blur-sm rounded-2xl p-8 sm:p-10 border-2 border-cyan-400/30 hover:border-cyan-400/60 transition-all min-h-32 flex items-center justify-center group hover:bg-black/20">
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-white text-balance leading-relaxed drop-shadow-lg tracking-wide">
+                  {proposal}
+                </p>
+              </div>
             </div>
 
-            {/* Iconos animados */}
-            <div className="flex justify-center gap-6 text-5xl sm:text-6xl">
-              <span className="animate-bounce-infinite drop-shadow-lg">📋</span>
+            {/* Iconografía profesional */}
+            <div className="flex justify-center gap-8 text-5xl sm:text-6xl md:text-7xl pt-2">
+              <span className="animate-bounce drop-shadow-lg" style={{ animationDelay: '0s' }}>📋</span>
               <span className="animate-rotate-360 drop-shadow-lg">⚡</span>
-              <span className="animate-bounce-infinite drop-shadow-lg" style={{ animationDelay: '0.2s' }}>
-                🎯
-              </span>
+              <span className="animate-bounce drop-shadow-lg" style={{ animationDelay: '0.2s' }}>🎯</span>
             </div>
 
-            {/* Botón mejorado */}
-            <div className="pt-4 flex gap-3 justify-center">
+            {/* Información adicional */}
+            <div className="pt-4 text-sm text-cyan-300/70 space-y-1">
+              <p className="font-semibold drop-shadow-md">Presiona para continuar o espera</p>
+            </div>
+
+            {/* Botón de acción mejorado */}
+            <div className="pt-6 flex gap-4 justify-center">
               <button
                 onClick={() => setShow(false)}
-                className="px-8 py-3 sm:py-4 bg-gradient-to-r from-orange-400 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg hover:shadow-orange-500/50 active:scale-95 transition-all text-base sm:text-lg drop-shadow-lg transform hover:scale-105"
+                className="px-10 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white font-black rounded-xl hover:shadow-2xl hover:shadow-cyan-500/50 active:scale-95 transition-all text-base sm:text-lg md:text-xl drop-shadow-lg transform hover:scale-110 uppercase tracking-widest border-2 border-cyan-300/50"
               >
-                Siguiente →
+                Siguiente Propuesta →
               </button>
             </div>
           </div>
 
-          {/* Decoración lateral izquierda */}
-          <div className="absolute -left-20 top-1/2 transform -translate-y-1/2 text-8xl opacity-10">📜</div>
-          {/* Decoración lateral derecha */}
-          <div className="absolute -right-20 bottom-0 text-8xl opacity-10">🏛️</div>
+          {/* Decoración lateral izquierda - Sutil */}
+          <div className="absolute -left-24 top-1/2 transform -translate-y-1/2 text-9xl opacity-5 filter brightness-75">🏛️</div>
+          {/* Decoración lateral derecha - Sutil */}
+          <div className="absolute -right-24 bottom-0 text-9xl opacity-5 filter brightness-75">📜</div>
         </div>
       </div>
     </div>

@@ -10,60 +10,84 @@ import { GameBackground } from './GameBackground';
 import { ScoreDisplay } from './ScoreDisplay';
 
 const PROPOSALS = [
-  '🛣️ Mejorar infraestructura vial y accesos principales',
-  '💧 Ampliación de servicios de agua potable a zonas rurales',
-  '👨‍💼 Programa de empleabilidad y capacitación para jóvenes',
-  '🌳 Renovación de espacios públicos y parques recreativos',
-  '📚 Subsidio para educación técnica y becas locales',
-  '⚕️ Campaña de salud preventiva y atención médica comunitaria',
-  '🏪 Apoyo directo a productores locales y emprendedores',
-  '💡 Mejora de iluminación e infraestructura en barrios',
-  '🚔 Programa de seguridad ciudadana y patrullaje reforzado',
-  '♻️ Incentivos e inversión en energías renovables limpias',
+  'Mejorar infraestructura vial y accesos principales a la ciudad',
+  'Ampliación de servicios de agua potable a zonas rurales y periféricas',
+  'Programa de empleabilidad y capacitación técnica para jóvenes',
+  'Renovación de espacios públicos y parques recreativos modernos',
+  'Subsidio para educación técnica profesional y becas locales',
+  'Campaña integral de salud preventiva y atención médica comunitaria',
+  'Apoyo directo a productores locales y emprendimientos sustentables',
+  'Mejora de iluminación LED e infraestructura en barrios',
+  'Programa de seguridad ciudadana con patrullaje comunitario reforzado',
+  'Inversión en energías renovables limpias para desarrollo sostenible',
 ];
 
 export function GameContainer() {
   const [playerY, setPlayerY] = useState(50);
+  const [playerRotation, setPlayerRotation] = useState(0);
   const [isJumping, setIsJumping] = useState(false);
   const [gameActive, setGameActive] = useState(true);
   const [score, setScore] = useState(0);
   const [currentProposal, setCurrentProposal] = useState<string | null>(null);
   const [revealedProposals, setRevealedProposals] = useState<string[]>([]);
   const [isCubeShaking, setIsCubeShaking] = useState(false);
+  const [impactEffect, setImpactEffect] = useState(false);
   const velocityRef = useRef(0);
   const jumpingRef = useRef(false);
   const usedProposalsRef = useRef(new Set<number>());
+  const lastHitRef = useRef(false);
 
-  // Simulación de física de salto
+  // Simulación de física de salto mejorada
   useEffect(() => {
     if (!gameActive) return;
 
     let frameId: number;
     const gameLoop = () => {
       setPlayerY((prevY) => {
-        const GRAVITY = 0.4;
-        const JUMP_POWER = 15;
+        // Física más realista con easing suave
+        const GRAVITY = 0.55;
+        const JUMP_POWER = 18;
         const GROUND_Y = 50;
+        const MAX_Y = 250;
 
         if (!jumpingRef.current) {
-          // Iniciar salto automático
+          // Iniciar salto automático cada 900ms
           jumpingRef.current = true;
           velocityRef.current = JUMP_POWER;
+          setIsJumping(true);
         }
 
         velocityRef.current -= GRAVITY;
         let newY = prevY - velocityRef.current;
 
-        if (newY <= GROUND_Y) {
+        // Límite superior
+        if (newY < 0) {
+          newY = 0;
+          velocityRef.current = 0;
+        }
+
+        if (newY >= GROUND_Y) {
           newY = GROUND_Y;
           velocityRef.current = 0;
           jumpingRef.current = false;
+          setIsJumping(false);
         }
 
-        // Detección de colisión con el cubo
-        if (newY > 100 && newY < 180 && prevY >= GROUND_Y) {
-          handleCubeHit();
+        // Detección de colisión mejorada con el cubo
+        // El cubo está entre 100-180px de altura
+        const playerSize = 35; // Altura aproximada del jugador
+        if (newY + playerSize > 100 && newY < 180 && !lastHitRef.current) {
+          if (prevY >= GROUND_Y || velocityRef.current < -3) {
+            // Colisión descendente o en fase de caída
+            handleCubeHit();
+            lastHitRef.current = true;
+          }
+        } else if (newY >= GROUND_Y) {
+          lastHitRef.current = false;
         }
+
+        // Rotación del personaje según velocidad
+        setPlayerRotation(Math.min(Math.abs(velocityRef.current) * 5, 30));
 
         return newY;
       });
@@ -76,14 +100,14 @@ export function GameContainer() {
     return () => cancelAnimationFrame(frameId);
   }, [gameActive]);
 
-  // Auto-salto continuo
+  // Auto-salto continuo mejorado
   useEffect(() => {
     if (!gameActive) return;
 
     const jumpTimer = setInterval(() => {
-      velocityRef.current = 15;
+      velocityRef.current = 18;
       jumpingRef.current = true;
-    }, 800);
+    }, 900);
 
     return () => clearInterval(jumpTimer);
   }, [gameActive]);
@@ -105,20 +129,19 @@ export function GameContainer() {
     setScore(newScore);
     setRevealedProposals([...revealedProposals, newProposal]);
 
-    // Efecto visual
+    // Efectos visuales mejorados
     setIsCubeShaking(true);
-    setTimeout(() => setIsCubeShaking(false), 400);
+    setImpactEffect(true);
+    
+    setTimeout(() => setIsCubeShaking(false), 300);
+    setTimeout(() => setImpactEffect(false), 400);
 
     // Fin del juego
     if (newScore >= PROPOSALS.length) {
       setTimeout(() => {
         setGameActive(false);
-      }, 500);
+      }, 800);
     }
-  };
-
-  const handleProposalEnd = () => {
-    setCurrentProposal(null);
   };
 
   const handleRestart = () => {
@@ -127,9 +150,12 @@ export function GameContainer() {
     setRevealedProposals([]);
     setCurrentProposal(null);
     setGameActive(true);
+    setImpactEffect(false);
+    setPlayerRotation(0);
     velocityRef.current = 0;
     jumpingRef.current = false;
     usedProposalsRef.current.clear();
+    lastHitRef.current = false;
   };
 
   return (
@@ -142,6 +168,21 @@ export function GameContainer() {
 
       {/* Game Area */}
       <div className="relative w-full h-full">
+        {/* Impact Effect - Gran explosión de energía */}
+        {impactEffect && (
+          <div className="fixed inset-0 z-45 pointer-events-none">
+            <div className="absolute left-1/2 bottom-32 transform -translate-x-1/2">
+              <div className="w-32 h-32 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-full blur-3xl opacity-70 animate-impact-burst"></div>
+            </div>
+            {/* Ondas de energía */}
+            <div className="absolute left-1/2 bottom-32 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-24 h-24 rounded-full border-4 border-cyan-400/80 animate-energy-pulse"></div>
+              <div className="absolute w-32 h-32 rounded-full border-2 border-blue-500/50 animate-energy-pulse" style={{ animationDelay: '0.1s' }}></div>
+              <div className="absolute w-40 h-40 rounded-full border-2 border-purple-500/30 animate-energy-pulse" style={{ animationDelay: '0.2s' }}></div>
+            </div>
+          </div>
+        )}
+
         {/* Player */}
         <Player y={playerY} />
 
@@ -152,31 +193,43 @@ export function GameContainer() {
         <SideAnimals />
 
         {/* Current Proposal */}
-        {currentProposal && <ProposalCard proposal={currentProposal} onAnimationEnd={handleProposalEnd} />}
+        {currentProposal && <ProposalCard proposal={currentProposal} onAnimationEnd={() => setCurrentProposal(null)} />}
 
         {/* Game Over */}
         {!gameActive && <GameOver onRestart={handleRestart} proposals={revealedProposals} />}
       </div>
 
-      {/* Instrucciones iniciales */}
+      {/* Instrucciones iniciales mejoradas */}
       {gameActive && score === 0 && (
         <div className="fixed inset-0 z-30 flex flex-col items-center justify-center pointer-events-none">
           {/* Instrucción superior */}
-          <div className="absolute top-24 animate-bounce">
-            <div className="text-center space-y-3">
-              <p className="text-2xl sm:text-4xl font-black text-primary">¡BIENVENIDO!</p>
-              <p className="text-base sm:text-xl font-bold text-primary/80">Golpea el cubo para revelar propuestas</p>
+          <div className="absolute top-20 animate-fade-in-down">
+            <div className="text-center space-y-4">
+              <h1 className="text-5xl sm:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
+                PROPUESTAS POLÍTICAS
+              </h1>
+              <p className="text-lg sm:text-2xl font-bold text-white/80 tracking-wider">
+                Salta y descubre las propuestas de gobierno
+              </p>
+              <div className="flex justify-center gap-4 text-4xl">
+                <span className="animate-bounce">📋</span>
+                <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>⚡</span>
+                <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🎯</span>
+              </div>
             </div>
           </div>
 
           {/* Instrucción inferior */}
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 pointer-events-auto">
+          <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2 pointer-events-auto">
             <button
               onClick={handleCubeHit}
-              className="px-6 py-3 sm:px-8 sm:py-4 bg-primary text-primary-foreground font-black text-lg sm:text-xl rounded-lg hover:bg-primary/90 active:scale-95 transition-all transform animate-bounce"
+              className="px-8 py-4 sm:px-12 sm:py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xl sm:text-2xl rounded-xl hover:shadow-2xl hover:shadow-cyan-500/50 active:scale-95 transition-all transform hover:scale-110 uppercase tracking-wider border-2 border-cyan-300/50"
             >
-              👇 GOLPEAR CUBO 👇
+              Golpea el Cubo ↓
             </button>
+            <p className="text-center text-white/60 mt-4 text-sm animate-pulse">
+              El personaje saltará automáticamente
+            </p>
           </div>
         </div>
       )}
