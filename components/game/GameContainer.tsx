@@ -8,6 +8,9 @@ import { GameOver } from './GameOver';
 import { SideAnimals } from './SideAnimals';
 import { GameBackground } from './GameBackground';
 import { ScoreDisplay } from './ScoreDisplay';
+import { useJumpPhysics } from '@/hooks/useJumpPhysics';
+import { useCollisionDetector } from '@/hooks/useCollisionDetector';
+import { useScreenInput } from '@/hooks/useScreenInput';
 
 const PROPOSALS = [
   'Mejorar infraestructura vial y accesos principales a la ciudad',
@@ -23,19 +26,25 @@ const PROPOSALS = [
 ];
 
 const GAME_CONFIG = {
-  GROUND_Y: 80,
-  CUBE_TOP: 100,
-  CUBE_BOTTOM: 155,
-  CUBE_CENTER_X: 50, // %
-  PLAYER_WIDTH: 60, // px aproximado
-  GRAVITY: 0.6,
-  JUMP_POWER: 20,
-  JUMP_INTERVAL: 1000,
+  physics: {
+    gravity: 0.6,
+    jumpPower: 20,
+    jumpInterval: 1000,
+    groundY: 80,
+  },
+  collision: {
+    cubeTop: 350,
+    cubeBottom: 480,
+    playerWidth: 60,
+    hitCooldown: 500,
+  },
+  cube: {
+    centerX: 50, // %
+  },
 };
 
 export function GameContainer() {
   // Estado del juego
-  const [playerY, setPlayerY] = useState(GAME_CONFIG.GROUND_Y);
   const [gameActive, setGameActive] = useState(true);
   const [score, setScore] = useState(0);
   const [currentProposal, setCurrentProposal] = useState<string | null>(null);
@@ -45,10 +54,27 @@ export function GameContainer() {
   const [showStartScreen, setShowStartScreen] = useState(true);
   
   // Referencias
-  const velocityRef = useRef(0);
-  const isJumpingRef = useRef(false);
   const usedProposalsRef = useRef(new Set<number>());
-  const canHitRef = useRef(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Usar custom hooks
+  const { playerY, velocityRef, jump, updatePhysics } = useJumpPhysics({
+    groundY: GAME_CONFIG.physics.groundY,
+    gravity: GAME_CONFIG.physics.gravity,
+    jumpPower: GAME_CONFIG.physics.jumpPower,
+    jumpInterval: GAME_CONFIG.physics.jumpInterval,
+  });
+
+  const { checkCollision } = useCollisionDetector({
+    cubeTop: GAME_CONFIG.collision.cubeTop,
+    cubeBottom: GAME_CONFIG.collision.cubeBottom,
+    playerWidth: GAME_CONFIG.collision.playerWidth,
+  });
+
+  useScreenInput(containerRef, () => {
+    if (!gameActive || showStartScreen) return;
+    jump();
+  }, gameActive && !showStartScreen);
 
   // Sistema de física de salto
   useEffect(() => {
@@ -56,39 +82,15 @@ export function GameContainer() {
 
     let animationFrameId: number;
     const gameLoop = () => {
-      setPlayerY((prevY) => {
-        // Aplicar gravedad
-        velocityRef.current -= GAME_CONFIG.GRAVITY;
-        let newY = prevY - velocityRef.current;
-
-        // Limitar altura mínima
-        if (newY < 0) {
-          newY = 0;
-          velocityRef.current = 0;
-        }
-
-        // Suelo
-        if (newY >= GAME_CONFIG.GROUND_Y) {
-          newY = GAME_CONFIG.GROUND_Y;
-          velocityRef.current = 0;
-          isJumpingRef.current = false;
-        }
-
+      updatePhysics((newY) => {
         // Detección de colisión mejorada
         if (
-          canHitRef.current &&
-          newY < GAME_CONFIG.CUBE_BOTTOM &&
-          newY + GAME_CONFIG.PLAYER_WIDTH > GAME_CONFIG.CUBE_TOP &&
+          newY < GAME_CONFIG.collision.cubeBottom &&
+          newY + GAME_CONFIG.collision.playerWidth > GAME_CONFIG.collision.cubeTop &&
           velocityRef.current < 0 // Descendiendo
         ) {
           performHit();
-          canHitRef.current = false;
-          setTimeout(() => {
-            canHitRef.current = true;
-          }, 500);
         }
-
-        return newY;
       });
 
       animationFrameId = requestAnimationFrame(gameLoop);
@@ -96,19 +98,18 @@ export function GameContainer() {
 
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [gameActive]);
+  }, [gameActive, updatePhysics]);
 
   // Auto-jump del personaje
   useEffect(() => {
     if (!gameActive || showStartScreen) return;
 
     const jumpInterval = setInterval(() => {
-      velocityRef.current = GAME_CONFIG.JUMP_POWER;
-      isJumpingRef.current = true;
-    }, GAME_CONFIG.JUMP_INTERVAL);
+      jump();
+    }, GAME_CONFIG.physics.jumpInterval);
 
     return () => clearInterval(jumpInterval);
-  }, [gameActive, showStartScreen]);
+  }, [gameActive, showStartScreen, jump]);
 
   // Función de hit mejorada
   const performHit = () => {
@@ -156,41 +157,21 @@ export function GameContainer() {
     performHit();
   };
 
-  // Manejo de toques en la pantalla (salto)
-  const handleScreenTap = (e: React.TouchEvent | React.MouseEvent) => {
-    if (!gameActive || showStartScreen) return;
-    
-    // Evitar conflicto si es click en botones o elementos interactivos
-    const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[role="button"]')) {
-      return;
-    }
-
-    // Hacer saltar al personaje
-    velocityRef.current = GAME_CONFIG.JUMP_POWER;
-    isJumpingRef.current = true;
-  };
-
   // Reiniciar juego
   const handleRestart = () => {
-    setPlayerY(GAME_CONFIG.GROUND_Y);
     setScore(0);
     setRevealedProposals([]);
     setCurrentProposal(null);
     setGameActive(true);
     setShowStartScreen(true);
     setImpactEffect(false);
-    velocityRef.current = 0;
-    isJumpingRef.current = false;
     usedProposalsRef.current.clear();
-    canHitRef.current = true;
   };
 
   return (
     <div 
+      ref={containerRef}
       className="w-full h-screen bg-background overflow-hidden relative flex flex-col"
-      onClick={handleScreenTap}
-      onTouchStart={handleScreenTap}
     >
       {/* Background */}
       <GameBackground />

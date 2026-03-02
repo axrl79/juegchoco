@@ -9,7 +9,7 @@ interface PlayerProps {
 export function Player({ y }: PlayerProps) {
   return (
     <div
-      className="absolute transition-all duration-75 will-change-transform z-30"
+      className="absolute transition-all duration-75 will-change-transform z-40"
       style={{
         bottom: `${y}px`,
         left: '50%',

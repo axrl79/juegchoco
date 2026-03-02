@@ -11,7 +11,7 @@ export function MarioCube({ onHit, isShaking }: MarioCubeProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="absolute z-40" style={{ bottom: '155px', left: '50%', transform: 'translateX(-50%)' }}>
+    <div className="absolute z-20" style={{ bottom: '350px', left: '50%', transform: 'translateX(-50%)' }}>
       <div
         className={`relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 cursor-pointer transition-all active:scale-95 group duration-200 ${
           isShaking ? 'animate-impact-shake' : 'animate-document-float'
