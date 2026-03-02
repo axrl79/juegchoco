@@ -23,8 +23,13 @@ export function useJumpPhysics(config: JumpConfig) {
   // Actualizar física
   const updatePhysics = useCallback((onCollisionCheck?: (newY: number) => void) => {
     setPlayerY((currentY) => {
+      // Si está en el suelo y no saltando, no aplicar gravedad
+      if (currentY >= config.groundY && !isJumpingRef.current) {
+        return config.groundY;
+      }
+
       velocityRef.current -= config.gravity;
-      let newY = currentY - velocityRef.current;
+      let newY = currentY + velocityRef.current;
 
       // Límite superior
       if (newY < 0) {

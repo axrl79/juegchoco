@@ -58,7 +58,7 @@ export function GameContainer() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Usar custom hooks
-  const { playerY, velocityRef, jump, updatePhysics } = useJumpPhysics({
+  const { playerY, velocityRef, isJumpingRef, jump, updatePhysics } = useJumpPhysics({
     groundY: GAME_CONFIG.physics.groundY,
     gravity: GAME_CONFIG.physics.gravity,
     jumpPower: GAME_CONFIG.physics.jumpPower,
@@ -100,16 +100,19 @@ export function GameContainer() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [gameActive, updatePhysics]);
 
-  // Auto-jump del personaje
+  // Auto-jump del personaje - Solo saltar si está en el suelo
   useEffect(() => {
     if (!gameActive || showStartScreen) return;
 
     const jumpInterval = setInterval(() => {
-      jump();
+      // Solo saltar si está en el suelo (no saltando)
+      if (!isJumpingRef.current && playerY >= GAME_CONFIG.physics.groundY - 5) {
+        jump();
+      }
     }, GAME_CONFIG.physics.jumpInterval);
 
     return () => clearInterval(jumpInterval);
-  }, [gameActive, showStartScreen, jump]);
+  }, [gameActive, showStartScreen, jump, playerY]);
 
   // Función de hit mejorada
   const performHit = () => {
