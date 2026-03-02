@@ -4,17 +4,19 @@ import Image from 'next/image';
 
 interface PlayerProps {
   y: number;
+  onJump?: () => void;
 }
 
-export function Player({ y }: PlayerProps) {
+export function Player({ y, onJump }: PlayerProps) {
   return (
     <div
-      className="absolute transition-all duration-75 will-change-transform z-40"
+      className="absolute transition-all duration-75 will-change-transform z-40 cursor-pointer"
       style={{
         bottom: `${y}px`,
         left: '50%',
         transform: 'translateX(-50%)',
       }}
+      onClick={() => onJump?.()}
     >
       <div className="relative group">
         {/* Aura de brillo dinámico - Efecto energía */}

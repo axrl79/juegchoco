@@ -71,11 +71,6 @@ export function GameContainer() {
     playerWidth: GAME_CONFIG.collision.playerWidth,
   });
 
-  useScreenInput(containerRef, () => {
-    if (!gameActive || showStartScreen) return;
-    jump();
-  }, gameActive && !showStartScreen);
-
   // Sistema de física de salto
   useEffect(() => {
     if (!gameActive) return;
@@ -99,20 +94,6 @@ export function GameContainer() {
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
   }, [gameActive, updatePhysics]);
-
-  // Auto-jump del personaje - Solo saltar si está en el suelo
-  useEffect(() => {
-    if (!gameActive || showStartScreen) return;
-
-    const jumpInterval = setInterval(() => {
-      // Solo saltar si está en el suelo (no saltando)
-      if (!isJumpingRef.current && playerY >= GAME_CONFIG.physics.groundY - 5) {
-        jump();
-      }
-    }, GAME_CONFIG.physics.jumpInterval);
-
-    return () => clearInterval(jumpInterval);
-  }, [gameActive, showStartScreen, jump, playerY]);
 
   // Función de hit mejorada
   const performHit = () => {
@@ -199,7 +180,7 @@ export function GameContainer() {
         )}
 
         {/* Player */}
-        {!gameActive ? null : <Player y={playerY} />}
+        {!gameActive ? null : <Player y={playerY} onJump={jump} />}
 
         {/* Cube */}
         {gameActive && (
